@@ -56,19 +56,26 @@ class Hokousya_sita(Agent):
 
         num_kabe = num_kabes
 
+        kabe_hani = kabe_han
+
 
         fa, syu_num , syuui_agents= self.syuui(num_hito,agents)
 
+        fa_kabe = self.kabe_fa(fa,kabe,kabe_hani)
+
+        if fa_kabe <= fa:
+            fa = fa_kabe
 
         self.a = kakudo_kai(fa, self.a)
 
         self.vdes = 1.3
         self.vdes = self.vdes * np.array([math.cos(self.a), math.sin(self.a)])
 
+        #壁との接触力
+
 
         print("Unique_ID", self.unique_id)
         hito_f = self.syuui_f(syu_num,syuui_agents)
-
         print("syu_agents",syuui_agents)
 
         V_nomi = self.sokudo()
@@ -163,6 +170,19 @@ class Hokousya_sita(Agent):
         syuui_agents = np.delete(syuui_agents, 0, axis=0)
 
         return fa,mawari_hito.size,syuui_agents
+
+    def kabe_fa(self,hito_fa, kabe, kabe_iti):
+        if hito_fa <= self.dmax:
+            fa = hito_fa
+        fa_kouho = np.array([fa])
+
+        for xi in kabe_iti:
+            if abs(xi -self.iti[0]) <= 0.1:
+                y_ = - ((kabe[0] * xi) + kabe[2]) / (kabe[1])
+                kyori = y_ - self.iti[1]
+                fa_kouho = np.append(fa_kouho, kyori)
+        fa = np.amin(fa_kouho)
+        return fa
 
 
     def kabe_f(self, num, kabe):
@@ -453,6 +473,20 @@ class Hokousya_ue(Agent):
     """
         #その後，ヒューリスティクスの第2段階を行う
         #それらの関数は以下に置いておく
+
+    def kabe_fa(self,hito_fa, kabe, kabe_iti):
+        if hito_fa <= self.dmax:
+            fa = hito_fa
+        fa_kouho = np.array([fa])
+        for xi in kabe_iti:
+            if abs(xi -self.iti[0]) <= 0.1:
+                y_ = - ((kabe[0] * xi) + kabe[2]) / (kabe[1])
+                kyori = y_ - self.iti[1]
+                fa_kouho = np.append(fa_kouho, kyori)
+        fa = np.amin(fa_kouho)
+        print("kjhfkjdghjsdkghkjsdhgvdksjhgjksdhgsdjgjksd",fa)
+        return -fa
+
     def kabe_f(self, num, kabe):
         kouryo = np.array([])
         for i in range(num):
@@ -525,11 +559,14 @@ class Kabe(Agent):
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
         self.naka = np.array([1,-1,10])
+        self.kabe_iti = np.arange(0,2,0.1)
 
 
 
     def step(self):
         pass
+
+
 
 
 class Oundahodou(Model):
@@ -547,6 +584,7 @@ class Oundahodou(Model):
         self.syudan_hito_sita = np.zeros((self.num_agents_sita, 2))
         self.syudan_hito_ue = np.zeros((self.num_agents_ue, 2))
         self.syudan_kabe = np.zeros((self.num_kabe, 2))
+        self.kabe_han = 0
         self.time = 1000
         # Create agents
 
@@ -567,11 +605,13 @@ class Oundahodou(Model):
             #self.syudan_hito_ue[i,1] = b.iti_y
 
         #壁を作る
-        #for i in range(self.num_kabe):
-         #   c = Kabe(i, self)
-          #  self.schedule.add(c)
-           # self.syudan_kabe[i, 0] = c.iti[0]
-            #self.syudan_kabe[i, 1] = c.iti[1]
+        for i in range(self.num_kabe):
+            c = Kabe(i, self)
+            self.syudan_kabe = c.naka
+            self.kabe_han = c.kabe_iti
+
+            self.schedule.add(c)
+
 
 
 
@@ -636,8 +676,9 @@ syudan = model.dasu_syudan_hito()
 print("エージェントの集団です",syudan)
 num_agents = model.num_agents_ue + model.num_agents_sita
 print("num_agent",num_agents)
-kabes = model.dasu_nu_kabe()
+kabes = model.syudan_kabe
 num_kabes = model.num_kabe
+kabe_han = model.kabe_han
 print("?------------------------",num_kabes,type(num_kabes))
 
 #とりあえず，壁はエージェントとして定義しない
