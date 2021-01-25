@@ -185,8 +185,7 @@ class Hokousya_sita(Agent):
 
     def douro_f(self):
         fiw = 0
-        fiw = 0.005 *(9.8 * (60 / 100 - self.iti[0]) - 9.8 * (60 / 100 - abs(10 - self.iti[0])))
-        fiw = 0
+        fiw = 50000 *(9.8 * (60 / 100 - self.iti[0]) - 9.8 * (60 / 100 - abs(10 - self.iti[0])))
         fiw_douro = np.array([fiw, 0])
         return fiw_douro
 
@@ -208,14 +207,14 @@ class Hokousya_sita(Agent):
                 #if (-1) * tan_matome <= hito_tan and hito_tan <= tan_matome:
                 if tan_matome >= 0:
                     if tan_matome >= self.tan_siya:
-                        fij = 1 * 9.8 * ((self.m /60 * 2) - kyori) * (nij)
+                        fij = 500 * 9.8 * ((self.m /60 * 2) - kyori) * (nij)
                         fij = fij / self.m
                         print("fij", fij)
                         f_ij = np.array([fij[0],fij[1]])
                         mawari_hito = mawari_hito + f_ij
                 else:
                     if tan_matome <= self.tan_siya:
-                        fij = 1 * 9.8 * ((self.m / 60 * 2) - kyori) * (nij)
+                        fij = 500 * 9.8 * ((self.m / 60 * 2) - kyori) * (nij)
                         fij = fij / self.m
                         print("fij", fij)
                         f_ij = np.array([fij[0], fij[1]])
@@ -473,8 +472,8 @@ class Hokousya_ue(Agent):
 
     def douro_f(self):
 
-        fiw = 0.005 * (9.8 * (60/220 - self.iti[0]) - 9.8 * (60/220 - abs(10 - self.iti[0])))
-        fiw = 0
+        fiw = 50000 * (9.8 * (60/220 - self.iti[0]) - 9.8 * (60/220 - abs(10 - self.iti[0])))
+
         fiw_douro = np.array([fiw, 0])
         return fiw_douro
 
@@ -497,13 +496,13 @@ class Hokousya_ue(Agent):
             if kyori <= self.dmax and agents[i, 1] >= self.iti[1]:
                 if tan_matome >= 0:
                     if tan_matome >= self.tan_siya:
-                        fij = 1 * 9.8 * ((self.m / 60 * 2) - kyori) * (nij)
+                        fij = 500 * 9.8 * ((self.m / 220 * 2) - kyori) * (nij)
                         fij = fij / self.m
                         f_ij = np.array([fij[0], fij[1]])
                         mawari_hito = mawari_hito + f_ij
                 else:
                     if tan_matome <= self.tan_siya:
-                        fij = 1 * 9.8 * ((self.m / 60 * 2) - kyori) * (nij)
+                        fij = 500 * 9.8 * ((self.m / 220 * 2) - kyori) * (nij)
                         fij = fij / self.m
                         f_ij = np.array([fij[0], fij[1]])
                         mawari_hito = mawari_hito + f_ij

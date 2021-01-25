@@ -172,17 +172,17 @@ class Hokousya_sita(Agent):
         return fa,mawari_hito.size,syuui_agents
 
     def kabe_fa(self,hito_fa, kabe, kabe_iti):
+        fa_naka = 10
         if hito_fa <= self.dmax:
-            fa = hito_fa
-        fa_kouho = np.array([fa])
-
+            fa_naka = hito_fa
+        fa_kouho = np.array([fa_naka])
         for xi in kabe_iti:
             if abs(xi -self.iti[0]) <= 0.1:
                 y_ = - ((kabe[0] * xi) + kabe[2]) / (kabe[1])
                 kyori = y_ - self.iti[1]
                 fa_kouho = np.append(fa_kouho, kyori)
-        fa = np.amin(fa_kouho)
-        return fa
+        uv = np.amin(fa_kouho)
+        return uv
 
 
     def kabe_f(self, num, kabe):
@@ -228,14 +228,14 @@ class Hokousya_sita(Agent):
                 #if (-1) * tan_matome <= hito_tan and hito_tan <= tan_matome:
                 if tan_matome >= 0:
                     if tan_matome >= self.tan_siya:
-                        fij = 1 * 9.8 * ((self.m /60 * 2) - kyori) * (nij)
+                        fij = 5 * 9.8 * ((self.m /220 * 2) - kyori) * (nij)
                         fij = fij / self.m
                         print("fij", fij)
                         f_ij = np.array([fij[0],fij[1]])
                         mawari_hito = mawari_hito + f_ij
                 else:
                     if tan_matome <= self.tan_siya:
-                        fij = 1 * 9.8 * ((self.m / 60 * 2) - kyori) * (nij)
+                        fij = 5 * 9.8 * ((self.m / 220 * 2) - kyori) * (nij)
                         fij = fij / self.m
                         print("fij", fij)
                         f_ij = np.array([fij[0], fij[1]])
@@ -531,13 +531,13 @@ class Hokousya_ue(Agent):
             if kyori <= self.dmax and agents[i, 1] >= self.iti[1]:
                 if tan_matome >= 0:
                     if tan_matome >= self.tan_siya:
-                        fij = 1 * 9.8 * ((self.m / 60 * 2) - kyori) * (nij)
+                        fij = 5 * 9.8 * ((self.m / 220 * 2) - kyori) * (nij)
                         fij = fij / self.m
                         f_ij = np.array([fij[0], fij[1]])
                         mawari_hito = mawari_hito + f_ij
                 else:
                     if tan_matome <= self.tan_siya:
-                        fij = 1 * 9.8 * ((self.m / 60 * 2) - kyori) * (nij)
+                        fij = 5 * 9.8 * ((self.m / 220 * 2) - kyori) * (nij)
                         fij = fij / self.m
                         f_ij = np.array([fij[0], fij[1]])
                         mawari_hito = mawari_hito + f_ij
@@ -573,8 +573,8 @@ class Oundahodou(Model):
     """これはモデル　連続空間に配置する"""
 
     def __init__(self):
-        self.num_agents_sita = 30
-        self.num_agents_ue = 30
+        self.num_agents_sita = 3
+        self.num_agents_ue = 3
         self.num_kabe = 1
         self.schedule = RandomActivationByBreed(self)
         #self.schedule = RandomActivation(self)
