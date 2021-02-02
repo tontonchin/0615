@@ -204,14 +204,9 @@ class Hokousya_sita(Agent):
         return sum_fiw
 
     def douro_f(self):
-
         fiw = 0
-
-        if self.iti[0] <= 60 / 220:
-            fiw = 0.5 * (9.8 * (60 / 220 - self.iti[0]) - 9.8 * (60 / 220 - abs(10 - self.iti[0])))
-
-        elif self.iti[0] >= 10 - 60 / 220:
-            fiw = 0.5 * (9.8 * (60 / 220 - self.iti[0]) - 9.8 * (60 / 220 - abs(10 - self.iti[0])))
+        fiw = 5000 *(9.8 * (60 / 100 - self.iti[0]) - 9.8 * (60 / 100 - abs(10 - self.iti[0])))
+        #fiw = 0
         fiw_douro = np.array([fiw, 0])
         return fiw_douro
 
@@ -221,21 +216,31 @@ class Hokousya_sita(Agent):
             # 位置関係
             matome_i = agents[i] - self.iti
             hito_tan = (matome_i[1] / matome_i[0])
-            kyori = ((matome_i[0])**2 + (matome_i[1])**2)**0.5
+            # kyori = ((matome_i[0])**2 + (matome_i[1])**2)**0.5
             kyori = np.linalg.norm(matome_i)
             nij = -1*(matome_i / kyori)
             print("nij",nij,type(nij))
 
             tan_matome = (math.tan(self.siyakaku)+math.tan(self.a))/(1 - (math.tan(self.siyakaku)*math.tan(self.a)))
 
-            if abs(self.iti[0] - agents[i][0]) <= 0.5 and abs(self.iti[1] - agents[i][1]) <= 0.5:
+            if kyori <= self.dmax and agents[i, 1] >= self.iti[1]:
                 #if (-1) * math.tan(self.siyakaku) <= hito_tan and hito_tan < + math.tan(self.siyakaku):
                 #if (-1) * tan_matome <= hito_tan and hito_tan <= tan_matome:
-                fij = 5000 * 9.8 * ((self.m /220 * 2) - kyori) * (nij)
-                fij = fij / self.m
-                print("fij", fij)
-                f_ij = np.array([fij[0],fij[1]])
-                mawari_hito = mawari_hito + f_ij
+                if tan_matome >= 0:
+                    if tan_matome >= self.tan_siya:
+                        fij = 5000 * 9.8 * ((self.m /220 * 2) - kyori) * (nij)
+                        fij = fij / self.m
+                        print("fij", fij)
+                        f_ij = np.array([fij[0],fij[1]])
+                        mawari_hito = mawari_hito + f_ij
+                else:
+                    if tan_matome <= self.tan_siya:
+                        fij = 5000 * 9.8 * ((self.m / 220 * 2) - kyori) * (nij)
+                        fij = fij / self.m
+                        print("fij", fij)
+                        f_ij = np.array([fij[0], fij[1]])
+                        mawari_hito = mawari_hito + f_ij
+
         #sum_fij = np.sum(mawari_hito,axis=0)
         print("sum_fij", mawari_hito)
         #syuui_f = np.array([math.cos(self.a) * sum_fij, math.sin(self.a) * sum_fij])
@@ -502,14 +507,7 @@ class Hokousya_ue(Agent):
 
     def douro_f(self):
 
-        fiw = 0
-
-        if self.iti[0] <=60/220:
-            fiw = 0.5 * (9.8 * (60/220 - self.iti[0]) - 9.8 * (60/220 - abs(10 - self.iti[0])))
-
-        elif self.iti[0] >= 10 - 60/220:
-            fiw = 0.5 * (9.8 * (60 / 220 - self.iti[0]) - 9.8 * (60 / 220 - abs(10 - self.iti[0])))
-
+        fiw = 5000 * (9.8 * (60/220 - self.iti[0]) - 9.8 * (60/220 - abs(10 - self.iti[0])))
         #fiw = 0
         fiw_douro = np.array([fiw, 0])
         return fiw_douro
@@ -530,15 +528,19 @@ class Hokousya_ue(Agent):
             tan_matome = (math.tan(self.siyakaku) + math.tan(self.a)) / (
                         1 - (math.tan(self.siyakaku) * math.tan(self.a)))
 
-            if abs(self.iti[0] - agents[i][0]) <= 0.5 and abs(self.iti[1] - agents[i][1]) <= 0.5:
-                #if (-1) * math.tan(self.siyakaku) <= hito_tan and hito_tan < + math.tan(self.siyakaku):
-                #if (-1) * tan_matome <= hito_tan and hito_tan <= tan_matome:
-                fij = 5000 * 9.8 * ((self.m /220 * 2) - kyori) * (nij)
-                fij = fij / self.m
-                print("fij", fij)
-                f_ij = np.array([fij[0],fij[1]])
-                mawari_hito = mawari_hito + f_ij
-
+            if kyori <= self.dmax and agents[i, 1] >= self.iti[1]:
+                if tan_matome >= 0:
+                    if tan_matome >= self.tan_siya:
+                        fij = 5000 * 9.8 * ((self.m / 220 * 2) - kyori) * (nij)
+                        fij = fij / self.m
+                        f_ij = np.array([fij[0], fij[1]])
+                        mawari_hito = mawari_hito + f_ij
+                else:
+                    if tan_matome <= self.tan_siya:
+                        fij = 5000 * 9.8 * ((self.m / 220 * 2) - kyori) * (nij)
+                        fij = fij / self.m
+                        f_ij = np.array([fij[0], fij[1]])
+                        mawari_hito = mawari_hito + f_ij
         #sum_fij = np.sum(mawari_hito, axis=0)
         print("sum_fij", mawari_hito)
         #syuui_f = np.array([math.cos(self.a)*sum_fij, math.sin(self.a)*sum_fij])
@@ -571,8 +573,8 @@ class Oundahodou(Model):
     """これはモデル　連続空間に配置する"""
 
     def __init__(self):
-        self.num_agents_sita = 15
-        self.num_agents_ue = 15
+        self.num_agents_sita = 3
+        self.num_agents_ue = 3
         self.num_kabe = 1
         self.schedule = RandomActivationByBreed(self)
         #self.schedule = RandomActivation(self)
@@ -705,8 +707,8 @@ for i in range(30):
     #ims.append(im_scatter)
     print(i,"ステップ目","&^&*(&^*(&^(*&^*&(^&(*^(&*%^&*(^&*(%^&*%&(*^%&^%(^")
     model.step()
-    plt.xlim(-10, 15)
-    plt.ylim(-20, 90)
+    #plt.xlim(0, 10)
+    #plt.ylim(-10, 70)
     #plt.title("time = "+str(i))
     im_scatter_ue = plt.scatter(im_x_ue, im_y_ue,c="blue")
     im_scatter_sita = plt.scatter(im_x_sita, im_y_sita, c="red")
