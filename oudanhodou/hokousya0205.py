@@ -26,8 +26,8 @@ class Hokousya_sita(Agent):
         # これは，歩行者エージェントごとに異なるもの，初期位置である
 
 
-        self.iti_x = round(random.randrange(0, 5)+random.random(),2)
-        self.iti_y = round(random.randrange(0, 5)+random.random(),2)
+        self.iti_x = round(random.randrange(0, 10)+random.random(),2)
+        self.iti_y = round(random.randrange(0, 50)+random.random(),2)
 
 
         self.a =  (math.pi) / 2
@@ -65,10 +65,26 @@ class Hokousya_sita(Agent):
 
         if fa_kabe <= fa:
             fa = fa_kabe
-
+        maeno_a = self.a
         self.a = kakudo_kai(fa, self.a)
 
+
+        for i in range(num_agents):
+            if self.iti[0]+self.vi[0]==syudan[i,0] and self.iti[1]+self.vi[1]==syudan[i,1]:
+                syudan[i] -= self.vi
+
+
+        if round(maeno_a) != round(self.a):
+            print("前の角度は",math.degrees(maeno_a))
+            print("変化しました角度変化しました角度",math.degrees(self.a))
+
         self.vdes = 1.3
+
+        vdes_kouho = fa / 0.5
+
+        if vdes_kouho <= self.vdes:
+            self.vdes = vdes_kouho
+
         self.vdes = self.vdes * np.array([math.cos(self.a), math.sin(self.a)])
 
         #壁との接触力
@@ -79,9 +95,17 @@ class Hokousya_sita(Agent):
         print("syu_agents",syuui_agents)
 
         V_nomi = self.sokudo()
-        dvdt = (V_nomi + hito_f + self.douro_f() ) /100
+        douro_f = self.douro_f()
+        dvdt = (V_nomi + hito_f + douro_f ) /10
         print("self.douro_f()",self.douro_f())
         print("hito_f",hito_f)
+
+        if douro_f[0] != 0 or douro_f[1] != 0:
+            print("道路の接触力が働いた",douro_f)
+
+
+        if hito_f[0] != 0 and hito_f[1] != 0:
+            print("人の接触力がすごいあっった!!!!!")
 
         dvdt_new = dvdt
 
@@ -115,7 +139,7 @@ class Hokousya_sita(Agent):
 
         for i in range(num_agents):
             if self.iti[0]==syudan[i,0] and self.iti[1]==syudan[i,1]:
-                syudan[i] += self.vi
+                syudan[i] += (self.vi*2)
         #print("これはdtdsv", dvdt)
         print("これは辺が後のself.vi",self.vi)
         print("これは動く前のself.iti",self.iti)
@@ -207,11 +231,13 @@ class Hokousya_sita(Agent):
 
         fiw = 0
 
-        if self.iti[0] <= 60 / 220:
-            fiw = 0.5 * (9.8 * (60 / 220 - self.iti[0]) - 9.8 * (60 / 220 - abs(10 - self.iti[0])))
+        if abs(self.iti[0]) <= 60 / 220:
+            a = abs(self.iti[0])
+            fiw = 6 * (a * (60 / 220 - self.iti[0]) - 9.8 * (60 / 220 - abs(10 - self.iti[0])))
 
-        elif self.iti[0] >= 10 - 60 / 220:
-            fiw = 0.5 * (9.8 * (60 / 220 - self.iti[0]) - 9.8 * (60 / 220 - abs(10 - self.iti[0])))
+        elif abs(10-self.iti[0])<= 60/220:
+            b = abs(10 - self.iti[0])
+            fiw = 6  * (b * (60 / 220 - self.iti[0]) - 9.8 * (60 / 220 - abs(10 - self.iti[0])))
         fiw_douro = np.array([fiw, 0])
         return fiw_douro
 
@@ -231,7 +257,7 @@ class Hokousya_sita(Agent):
             if abs(self.iti[0] - agents[i][0]) <= 0.5 and abs(self.iti[1] - agents[i][1]) <= 0.5:
                 #if (-1) * math.tan(self.siyakaku) <= hito_tan and hito_tan < + math.tan(self.siyakaku):
                 #if (-1) * tan_matome <= hito_tan and hito_tan <= tan_matome:
-                fij = 5000 * 9.8 * ((self.m /220 * 2) - kyori) * (nij)
+                fij = -5000 * kyori * ((self.m /220 * 2) - kyori) * (nij)
                 fij = fij / self.m
                 print("fij", fij)
                 f_ij = np.array([fij[0],fij[1]])
@@ -275,7 +301,7 @@ class Hokousya_ue(Agent):
         super().__init__(unique_id, model)
         # これは設定されたパラメータ，一様である
         self.tyon = 0.5
-        self.siyakaku = math.pi/3
+        self.siyakaku = math.pi/2
         self.dmax = 5
         self.K = 5
         #self.a = (math.pi) / 2
@@ -284,8 +310,8 @@ class Hokousya_ue(Agent):
         # これは，歩行者エージェントごとに異なるもの，初期位置である
 
 
-        self.iti_x = round(random.randrange(0, 5)+random.random(),2)
-        self.iti_y = round(random.randrange(45, 50)+random.random(),2)
+        self.iti_x = round(random.randrange(0, 10)+random.random(),2)
+        self.iti_y = round(random.randrange(0, 50)+random.random(),2)
 
 
         self.a =  3* (math.pi) / 2
@@ -336,9 +362,19 @@ class Hokousya_ue(Agent):
 
         self.a = kakudo_kai_ue(fa, self.a)
 
+        for i in range(num_agents):
+            if self.iti[0]+self.vi[0]==syudan[i,0] and self.iti[1]+self.vi[1]==syudan[i,1]:
+                syudan[i] -= self.vi
+
         print("へんかあとのかくどは!!!!!!!!",math.degrees(self.a))
         if maeno_a != self.a:
-            print("変化しました角度変化しました角度")
+            print("前の角度は", math.degrees(maeno_a))
+            print("変化しました角度変化しました角度",math.degrees(self.a))
+
+        vdes_kouho = fa / 0.5
+
+        if vdes_kouho <= self.vdes:
+            self.vdes = vdes_kouho
 
         self.vdes = self.vdes * np.array([math.cos(self.a), math.sin(self.a)])
 
@@ -346,10 +382,20 @@ class Hokousya_ue(Agent):
         print("Unique_ID", self.unique_id)
         hito_f = self.syuui_f(syu_num,agents)
 
+
+        if hito_f[0] != 0 or hito_f[1]!= 0:
+            print("人の接触力が起こった",hito_f)
+
+
         #2で割ったことにより1ステップごとのdvdtは0.5秒となる
 
         V_nomi = self.sokudo()
-        dvdt = (V_nomi + hito_f + self.douro_f() ) / 100
+        douro_f = self.douro_f()
+        dvdt = (V_nomi + hito_f + douro_f ) / 10
+
+        if round(douro_f[0]) != 0 or round(douro_f[1]) != 0:
+            print("道路の接触力が働いた",douro_f)
+
 
 
         print("self.douro_f()",self.douro_f())
@@ -399,7 +445,7 @@ class Hokousya_ue(Agent):
 
         for i in range(num_agents):
             if self.iti[0]==syudan[i,0] and self.iti[1]==syudan[i,1]:
-                syudan[i] += (self.vi * 2)
+                syudan[i] += (self.vi*2)
         #print("これはdtdsv", dvdt)
         print("これは辺が後のself.vi",self.vi)
         print("これは動く前のself.iti",self.iti)
@@ -504,16 +550,15 @@ class Hokousya_ue(Agent):
 
         fiw = 0
 
-        if self.iti[0] <=60/220:
-            a = self.iti[0] <=60/220
-            fiw = 50 * (a * (60/220 - self.iti[0]) - 9.8 * (60/220 - abs(10 - self.iti[0])))
+        if abs(self.iti[0]) <= 60 / 220:
+            a = abs(self.iti[0])
+            fiw = 6 * (a * (60 / 220 - self.iti[0]) - 9.8 * (60 / 220 - abs(10 - self.iti[0])))
 
-        elif self.iti[0] >= 10 - 60/220:
-            b = self.iti[0] >= 10 - 60/220
-            fiw = 50 * (b * (60 / 220 - self.iti[0]) - 9.8 * (60 / 220 - abs(10 - self.iti[0])))
-
-        #fiw = 0
+        elif abs(10-self.iti[0])<= 60/220:
+            b = abs(10-self.iti[0])
+            fiw = 6 * (b * (60 / 220 - self.iti[0]) - 9.8 * (60 / 220 - abs(10 - self.iti[0])))
         fiw_douro = np.array([fiw, 0])
+
         return fiw_douro
 
 
@@ -535,7 +580,7 @@ class Hokousya_ue(Agent):
             if abs(self.iti[0] - agents[i][0]) <= 0.5 and abs(self.iti[1] - agents[i][1]) <= 0.5:
                 #if (-1) * math.tan(self.siyakaku) <= hito_tan and hito_tan < + math.tan(self.siyakaku):
                 #if (-1) * tan_matome <= hito_tan and hito_tan <= tan_matome:
-                fij = 50 * kyori * ((self.m /220 * 2) - kyori) * (nij)
+                fij = -5000 * kyori * ((self.m /220 * 2) - kyori) * (nij)
                 fij = fij / self.m
                 print("fij", fij)
                 f_ij = np.array([fij[0],fij[1]])
@@ -573,8 +618,8 @@ class Oundahodou(Model):
     """これはモデル　連続空間に配置する"""
 
     def __init__(self):
-        self.num_agents_sita = 15
-        self.num_agents_ue = 15
+        self.num_agents_sita = 100
+        self.num_agents_ue = 100
         self.num_kabe = 1
         self.schedule = RandomActivationByBreed(self)
         #self.schedule = RandomActivation(self)
@@ -714,6 +759,13 @@ for i in range(30):
     im_scatter_sita = plt.scatter(im_x_sita, im_y_sita, c="red")
     ims.append([im_scatter_ue, im_scatter_sita])
     print(i,"ステップ目","syudan",syudan)
+    #num_of_huni = 0
+    #for j in syudan:
+     #   if syudan[j][0] >= 0 and syudan[j][0] <= 10 :
+      #      if syudan[j][1] >= 0 and syudan[j][1] <= 60 :
+       #         num_of_huni += 1
+    #print("範囲内のエージェントは",num_of_huni)
+
     #if i == 5 :
         #model.make_agents()
 
@@ -724,7 +776,7 @@ for i in range(30):
 #print(ims)
 
 anim = animation.ArtistAnimation(fig, ims,interval=500)
-anim.save('kotu_0114_asita_anim.gif', writer='writer', fps=4)
+anim.save('syukatutukareta_anim.gif', writer='writer', fps=4)
 
 
 plt.show()

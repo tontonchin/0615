@@ -115,7 +115,7 @@ class Hokousya_sita(Agent):
 
         for i in range(num_agents):
             if self.iti[0]==syudan[i,0] and self.iti[1]==syudan[i,1]:
-                syudan[i] += self.vi
+                syudan[i] += (self.vi * 2)
         #print("これはdtdsv", dvdt)
         print("これは辺が後のself.vi",self.vi)
         print("これは動く前のself.iti",self.iti)
@@ -207,11 +207,13 @@ class Hokousya_sita(Agent):
 
         fiw = 0
 
-        if self.iti[0] <= 60 / 220:
-            fiw = 0.5 * (9.8 * (60 / 220 - self.iti[0]) - 9.8 * (60 / 220 - abs(10 - self.iti[0])))
+        if abs(self.iti[0]) <= 60 / 220:
+            a = abs(self.iti[0])
+            fiw = 1 * (a * (60 / 220 - self.iti[0]) - 9.8 * (60 / 220 - abs(10 - self.iti[0])))
 
-        elif self.iti[0] >= 10 - 60 / 220:
-            fiw = 0.5 * (9.8 * (60 / 220 - self.iti[0]) - 9.8 * (60 / 220 - abs(10 - self.iti[0])))
+        elif abs(10-self.iti[0])<= 60/220:
+            b = abs(10 - self.iti[0])
+            fiw = 1  * (b * (60 / 220 - self.iti[0]) - 9.8 * (60 / 220 - abs(10 - self.iti[0])))
         fiw_douro = np.array([fiw, 0])
         return fiw_douro
 
@@ -231,7 +233,7 @@ class Hokousya_sita(Agent):
             if abs(self.iti[0] - agents[i][0]) <= 0.5 and abs(self.iti[1] - agents[i][1]) <= 0.5:
                 #if (-1) * math.tan(self.siyakaku) <= hito_tan and hito_tan < + math.tan(self.siyakaku):
                 #if (-1) * tan_matome <= hito_tan and hito_tan <= tan_matome:
-                fij = 5000 * 9.8 * ((self.m /220 * 2) - kyori) * (nij)
+                fij = -5000 * kyori * ((self.m /220 * 2) - kyori) * (nij)
                 fij = fij / self.m
                 print("fij", fij)
                 f_ij = np.array([fij[0],fij[1]])
@@ -399,7 +401,7 @@ class Hokousya_ue(Agent):
 
         for i in range(num_agents):
             if self.iti[0]==syudan[i,0] and self.iti[1]==syudan[i,1]:
-                syudan[i] += self.vi
+                syudan[i] += (self.vi * 2)
         #print("これはdtdsv", dvdt)
         print("これは辺が後のself.vi",self.vi)
         print("これは動く前のself.iti",self.iti)
@@ -504,14 +506,15 @@ class Hokousya_ue(Agent):
 
         fiw = 0
 
-        if self.iti[0] <=60/220:
-            fiw = 0.5 * (9.8 * (60/220 - self.iti[0]) - 9.8 * (60/220 - abs(10 - self.iti[0])))
+        if abs(self.iti[0]) <= 60 / 220:
+            a = abs(self.iti[0])
+            fiw = 1 * (a * (60 / 220 - self.iti[0]) - 9.8 * (60 / 220 - abs(10 - self.iti[0])))
 
-        elif self.iti[0] >= 10 - 60/220:
-            fiw = 0.5 * (9.8 * (60 / 220 - self.iti[0]) - 9.8 * (60 / 220 - abs(10 - self.iti[0])))
-
-        #fiw = 0
+        elif abs(10-self.iti[0])<= 60/220:
+            b = abs(10-self.iti[0])
+            fiw = -1 * (b * (60 / 220 - self.iti[0]) - 9.8 * (60 / 220 - abs(10 - self.iti[0])))
         fiw_douro = np.array([fiw, 0])
+
         return fiw_douro
 
 
@@ -533,7 +536,7 @@ class Hokousya_ue(Agent):
             if abs(self.iti[0] - agents[i][0]) <= 0.5 and abs(self.iti[1] - agents[i][1]) <= 0.5:
                 #if (-1) * math.tan(self.siyakaku) <= hito_tan and hito_tan < + math.tan(self.siyakaku):
                 #if (-1) * tan_matome <= hito_tan and hito_tan <= tan_matome:
-                fij = 5000 * 9.8 * ((self.m /220 * 2) - kyori) * (nij)
+                fij = -5000 * kyori * ((self.m /220 * 2) - kyori) * (nij)
                 fij = fij / self.m
                 print("fij", fij)
                 f_ij = np.array([fij[0],fij[1]])
