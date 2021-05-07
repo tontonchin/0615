@@ -618,8 +618,8 @@ class Oundahodou(Model):
     """これはモデル　連続空間に配置する"""
 
     def __init__(self):
-        self.num_agents_sita = 100
-        self.num_agents_ue = 100
+        self.num_agents_sita = 10
+        self.num_agents_ue = 10
         self.num_kabe = 1
         self.schedule = RandomActivationByBreed(self)
         #self.schedule = RandomActivation(self)
